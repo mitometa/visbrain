@@ -1004,33 +1004,51 @@ class CanvasShortcuts(object):
             # ------------ SCORING ------------
             elif event.text.lower() == 'a':  # Art
                 self._add_stage_on_scorwin(-1)
-                self._SlGoto.setValue(self._SlGoto.value(
-                ) + self._SigSlStep.value())
+                if self._mousescoring_active:
+                    self._fcn_slider_move()
+                else:
+                    self._SlGoto.setValue(self._SlGoto.value(
+                    ) + self._SigSlStep.value())
                 logger.info("Art stage inserted")
             elif event.text.lower() == 'w':  # Wake
                 self._add_stage_on_scorwin(0)
-                self._SlGoto.setValue(self._SlGoto.value(
-                ) + self._SigSlStep.value())
+                if self._mousescoring_active:
+                    self._fcn_slider_move()
+                else:
+                    self._SlGoto.setValue(self._SlGoto.value(
+                    ) + self._SigSlStep.value())
                 logger.info("Wake stage inserted")
             elif event.text == '1':
                 self._add_stage_on_scorwin(1)
-                self._SlGoto.setValue(self._SlGoto.value(
-                ) + self._SigSlStep.value())
+                if self._mousescoring_active:
+                    self._fcn_slider_move()
+                else:
+                    self._SlGoto.setValue(self._SlGoto.value(
+                    ) + self._SigSlStep.value())
                 logger.info("N1 stage inserted")
             elif event.text == '2':
                 self._add_stage_on_scorwin(2)
-                self._SlGoto.setValue(self._SlGoto.value(
-                ) + self._SigSlStep.value())
+                if self._mousescoring_active:
+                    self._fcn_slider_move()
+                else:
+                    self._SlGoto.setValue(self._SlGoto.value(
+                    ) + self._SigSlStep.value())
                 logger.info("N2 stage inserted")
             elif event.text == '3':
                 self._add_stage_on_scorwin(3)
-                self._SlGoto.setValue(self._SlGoto.value(
-                ) + self._SigSlStep.value())
+                if self._mousescoring_active:
+                    self._fcn_slider_move()
+                else:
+                    self._SlGoto.setValue(self._SlGoto.value(
+                    ) + self._SigSlStep.value())
                 logger.info("N3 stage inserted")
             elif event.text.lower() == 'r':
                 self._add_stage_on_scorwin(4)
-                self._SlGoto.setValue(self._SlGoto.value(
-                ) + self._SigSlStep.value())
+                if self._mousescoring_active:
+                    self._fcn_slider_move()
+                else:
+                    self._SlGoto.setValue(self._SlGoto.value(
+                    ) + self._SigSlStep.value())
                 logger.info("REM stage inserted")
 
         def get_cursor_time(event):
@@ -1066,23 +1084,6 @@ class CanvasShortcuts(object):
                 cursor = tm + ((th - tm) * x_vb / vb_size[0])
             return cursor
 
-        @canvas.events.mouse_release.connect
-        def on_mouse_release(event):
-            """Executed function when the mouse is pressed over canvas.
-
-            This method set the transformation to the canvas to NullTransform.
-            """
-            # Get canvas name :
-            name = canvas.title
-            condition = bool(name.find('Canvas') + 1)
-            if condition and not self._slMagnify.isChecked():
-                # Get channel name :
-                chan = name.split('Canvas_')[1]
-                # Get index :
-                idx = self._channels.index(chan)
-                # Build transformation :
-                self._chan.node[idx].transform = vist.NullTransform()
-
         @canvas.events.mouse_double_click.connect
         def on_mouse_double_click(event):
             """Executed function when double click mouse over canvas.
@@ -1099,12 +1100,54 @@ class CanvasShortcuts(object):
             # Run annotation :
             self._fcn_annotate_add('', (cursor, cursor), title)
 
+        @canvas.events.mouse_press.connect
+        def on_mouse_press(event):
+            """Executed function when single click mouse over canvas.
+
+            - CTRL + click: Magnigy the signal under the mouse cursor
+            - Enter click-and-drag scoring mode
+            """
+            # Get cursor position :
+            cursor = get_cursor_time(event)
+            # ------------- MAGNIFY : CTRL + left click -------------
+            name = canvas.title
+            is_left = self._is_left_click(event)
+            is_ctrl = self._is_modifier(event, 'Control')
+            condition = bool(name.find('Canvas') + 1) and is_left and is_ctrl
+            if condition and not self._slMagnify.isChecked():
+                # Get channel name :
+                chan = name.split('Canvas_')[1]
+                # Get index :
+                idx = self._channels.index(chan)
+                # Build transformation :
+                kwargs = {'center': (cursor, 0.), 'radii': (3, 15), 'mag': 10}
+                transform = vist.nonlinear.Magnify1DTransform(**kwargs)
+                self._chan.node[idx].transform = transform
+            # ------------- Start drawing click-and-drag window -------------
+            # Enter mousescoring mode if the cursor is on the channel/spec/hyp
+            # axis & within the display window
+            if (
+                cursor >= 0
+                and (  # noqa
+                    any([chan in canvas.title for chan in self._channels])
+                    or (canvas.title in ['Spectrogram', 'Hypnogram']  # noqa
+                        and self.menuDispZoom.isChecked())  # noqa
+                 )
+            ):
+                self._mouse_pressed = True
+                self._mousescoring_active = False  # Active once actually drags
+                self._mouse_scorwin_xlim = (cursor, None)
+
         @canvas.events.mouse_move.connect
         def on_mouse_move(event):
             """Executed function when the mouse move over canvas.
 
-            Magnify for all channels under cursor locations.
+            - Update cursor text
+            - Magnify for all channels under cursor locations.
+            - Extend click-and-drag scoring window if mouse is pressed
             """
+            if 'topo' in canvas.title.lower():
+                return
             # Get mouse cursor position for the specified canvas :
             cursor = get_cursor_time(event)
             # Enable/Disable magnify :
@@ -1118,33 +1161,44 @@ class CanvasShortcuts(object):
             # Set time position to the cursor text :
             cursor = np.round(cursor * 1000.) / 1000.
             self._txtCursor.setText('Cursor : ' + str(cursor) + ' sec')
+            # Click-and-drag scoring window
+            if self._mouse_pressed:
+                # Enter mouse-scoring mode if not already the case
+                self._mousescoring_active = True
+                self._mouse_scorwin_xlim = (
+                    self._mouse_scorwin_xlim[0],  # "Click" position
+                    cursor,  # Current mouse position
+                )
+                self._fcn_scorwin_settings()
 
-        @canvas.events.mouse_press.connect
-        def on_mouse_press(event):
-            """Executed function when single click mouse over canvas.
+        @canvas.events.mouse_release.connect
+        def on_mouse_release(event):
+            """Executed function when the mouse is released over canvas.
 
-            Magnigy the signal under the mouse cursor only.
+            - Set the transformation to the canvas to NullTransform.
+            - Stop drawing scoring window or exit mouse-scoring mode
             """
-            # ------------- MAGNIFY : CTRL + left click -------------
+            # Get canvas name :
             name = canvas.title
-            is_left = self._is_left_click(event)
-            is_ctrl = self._is_modifier(event, 'Control')
-            condition = bool(name.find('Canvas') + 1) and is_left and is_ctrl
+            condition = bool(name.find('Canvas') + 1)
             if condition and not self._slMagnify.isChecked():
                 # Get channel name :
                 chan = name.split('Canvas_')[1]
                 # Get index :
                 idx = self._channels.index(chan)
-                # Get cursor position :
-                cursor = get_cursor_time(event)
                 # Build transformation :
-                kwargs = {'center': (cursor, 0.), 'radii': (3, 15), 'mag': 10}
-                transform = vist.nonlinear.Magnify1DTransform(**kwargs)
-                self._chan.node[idx].transform = transform
-
-        @canvas.events.mouse_wheel.connect
-        def on_mouse_wheel(event):
-            pass
+                self._chan.node[idx].transform = vist.NullTransform()
+            # Quit mouse-scoring mode if no window was drawn/we clicked
+            # without drag
+            self._mouse_pressed = False
+            mouse_xlim = self._mouse_scorwin_xlim
+            min_xdrag = 0.05
+            if (
+                None in mouse_xlim
+                or abs(mouse_xlim[1] - mouse_xlim[0]) <= min_xdrag  # noqa
+            ):
+                self._mousescoring_active = False
+            self._update_scorwin_indicator()
 
 
 class Visuals(CanvasShortcuts):

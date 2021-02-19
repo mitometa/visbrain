@@ -53,10 +53,25 @@ class UiSettings(object):
         self._LockScorSigWins.clicked.connect(self._fcn_lock_scorwin_sigwin)
         # Annotation from the navigation bar :
         self._AnnotateRun.clicked.connect(self._fcn_annotate_nav)
+        # "MouseScoring": select epochs with "click-and-drag" scoring
+        # "mousescoring" means we clicked, dragged and await for scoring
+        self._mouse_pressed = False  # Is the mouse still pressed
+        self._mousescoring_active = False  # Are we in "MouseScoring" mode
+        self._mouse_scorwin_xlim = (None, None)  # (orig, final)
 
     # =====================================================================
     # Properties and utility functions
     # =====================================================================
+
+    @property
+    def mouse_scorwin_xlim(self):
+        """(start, end) for currently active MouseScoring window.
+
+        (_mouse_scorwin_xlim = (click_pos, current_drag_pos))
+        """
+        if None in self._mouse_scorwin_xlim:
+            return self._mouse_scorwin_xlim
+        return sorted(self._mouse_scorwin_xlim)
 
     @property
     def _xlim(self):
@@ -68,13 +83,21 @@ class UiSettings(object):
 
     @property
     def _xlim_scor(self):
-        """Scoring window xlim: (start, end) from _ScorWin and _SigWin."""
+        """(start, end) of current scoring window.
+
+        - Derived from SigWin and ScorWin in default mode
+        - return start/end values of click-and-drag in "MouseScoring" mode
+        """
+        if self._mousescoring_active:
+            return self.mouse_scorwin_xlim
+        # Otherwise, scoring window of a certain size centered to the display
+        # window
         scorwin = self._ScorWin.value()
         xlim = self._xlim
         xhalf = (xlim[1] - xlim[0]) / 2 + xlim[0]
         return (
             max(xlim[0], xhalf - scorwin / 2),
-            min(xlim[1], xhalf + scorwin / 2)
+            min(xlim[1], xhalf + scorwin / 2),
         )  # Centered to display window
 
     def data_index(self, xlim):
@@ -153,7 +176,7 @@ class UiSettings(object):
                                    hypcol + ";}")
 
     def _update_scorwin_indicator(self):
-        """Change location and width of scoring window indicator bars."""
+        """Change location and width of scoring window indicator."""
         # Get scoring window x_start x_end
         xlim_scor = self._xlim_scor
 
@@ -178,6 +201,10 @@ class UiSettings(object):
 
     def _fcn_slider_move(self):
         """Function applied when the slider move."""
+        # ================= Scoring mode =================
+        # Exit mousescoring mode (revert to regular (centered) scoring window)
+        self._mousescoring_active = False
+
         # ================= INDEX =================
         # Get slider variables :
         win = self._SigWin.value()
@@ -309,13 +336,15 @@ class UiSettings(object):
         # Make the scoring window visible
         self._ScorWinVisible.setChecked(True)
         self._fcn_scorwin_indicator_toggle()
-        # Change value of slider step to make it equal to the scoring window
-        scorwin = self._ScorWin.value()
-        self._SigSlStep.setValue(scorwin)
         # Change the text info:
         self._update_text_info()
         # Redraw the scoring window indicator bars
         self._update_scorwin_indicator()
+        # If the scoring window size changed because user set it from the
+        # settings, change slider step. Otherwise do nothing
+        if not self._mouse_pressed:
+            scorwin = self._ScorWin.value()
+            self._SigSlStep.setValue(scorwin)
 
     def _fcn_slider_win_selection(self):
         """Move slider using window spin."""
