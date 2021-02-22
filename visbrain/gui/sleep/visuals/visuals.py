@@ -930,12 +930,17 @@ class CanvasShortcuts(object):
 
     Parameters
     ----------
-    canvas : vispy canvas
-        Vispy canvas to add the shortcuts.
+    axiscanvas : `AxisCanvas`
+        `AxisCanvas` object with embedded axis.
+        Must contain `canvas` attribute containing the vispy canvas to add the
+        shortcuts to.
     """
 
-    def __init__(self, canvas):
+    def __init__(self, axiscanvas):
         """Init."""
+        # Get axiscanvas as arg because we also need axiscanvas.wc
+        canvas = axiscanvas.canvas
+
         # Hardcoded shortcuts
         sh = [
             ('n', 'Go to the next window'),
@@ -1035,6 +1040,39 @@ class CanvasShortcuts(object):
                             f"`{state}` vigilance state inserted ({value})"
                         )
 
+        def get_cursor_time(event):
+            """Cursor location in seconds.
+
+            Accounts for the offset between the whole AxisCanvas scene and
+            the viewbox containing data (due to the axis and padding)"""
+
+            # ViewBox object containing data
+            viewbox = axiscanvas.wc
+            vb_pos = viewbox.pos  # (x_bottomleft, y_bottomleft)
+            vb_size = viewbox.size  # (width, height)
+            assert viewbox.parent.size == canvas.size  # Sanity check
+            # X pos in pixel in whole grid
+            x_orig, _ = event.pos
+            # X pos in pixels in camera viewbox
+            x_vb = x_orig - vb_pos[0]
+            # out of camera viewbox
+            if x_vb < 0 or x_vb > vb_size[0]:
+                return -999
+            # axis time range: whole recording or display window
+            whole_range = (
+                canvas.title in ['Hypnogram', 'Spectrogram']
+                and not self.menuDispZoom.isChecked()  # noqa
+            )
+            if whole_range:
+                cursor = self._time[0] + self._time[-1] * x_vb / vb_size[0]
+            else:
+                val = self._SlVal.value()
+                step = self._SigSlStep.value()
+                win = self._SigWin.value()
+                tm, th = (val * step, val * step + win)
+                cursor = tm + ((th - tm) * x_vb / vb_size[0])
+            return cursor
+
         @canvas.events.mouse_release.connect
         def on_mouse_release(event):
             """Executed function when the mouse is pressed over canvas.
@@ -1062,14 +1100,7 @@ class CanvasShortcuts(object):
             is_sp_hyp = canvas.title in ['Hypnogram', 'Spectrogram']
             title = canvas.title if is_sp_hyp else canvas.title.split('_')[1]
             # Annotate the timing :
-            if is_sp_hyp:
-                cursor = self._time[-1] * event.pos[0] / canvas.size[0]
-            else:
-                val = self._SlVal.value()
-                step = self._SigSlStep.value()
-                win = self._SigWin.value()
-                tm, th = (val * step, val * step + win)
-                cursor = tm + ((th - tm) * event.pos[0] / canvas.size[0])
+            cursor = get_cursor_time(event)
             # Set the current tab to the annotation tab :
             self.QuickSettings.setCurrentIndex(5)
             # Run annotation :
@@ -1082,23 +1113,15 @@ class CanvasShortcuts(object):
             Magnify for all channels under cursor locations.
             """
             # Get mouse cursor position for the specified canvas :
-            zoom = self.menuDispZoom.isChecked()
-            if canvas.title in ['Hypnogram', 'Spectrogram'] and not zoom:
-                cursor = self._time[-1] * event.pos[0] / canvas.size[0]
-            else:
-                # Get time parameters (window, step, slider value) :
-                val = self._SlVal.value()
-                step = self._SigSlStep.value()
-                win = self._SigWin.value()
-                tm, th = (val * step, val * step + win)
-                # Convert cursor in time position :
-                cursor = tm + ((th - tm) * event.pos[0] / canvas.size[0])
-                # Enable/Disable magnify :
-                if self._slMagnify.isChecked():
-                    for i, k in self._chan:
-                        self._chan.node[i].transform.center = (cursor, 0.)
-                        k.update()
-                    tm, th = self._time.min(), self._time.max()
+            cursor = get_cursor_time(event)
+            # Enable/Disable magnify :
+            if (
+                canvas.title not in ['Hypnogram', 'Spectrogram']
+                and self._slMagnify.isChecked()  # noqa
+            ):
+                for i, k in self._chan:
+                    self._chan.node[i].transform.center = (cursor, 0.)
+                    k.update()
             # Set time position to the cursor text :
             cursor = np.round(cursor * 1000.) / 1000.
             self._txtCursor.setText('Cursor : ' + str(cursor) + ' sec')
@@ -1120,11 +1143,7 @@ class CanvasShortcuts(object):
                 # Get index :
                 idx = self._channels.index(chan)
                 # Get cursor position :
-                val = self._SlVal.value()
-                step = self._SigSlStep.value()
-                win = self._SigWin.value()
-                tm, th = (val * step, val * step + win)
-                cursor = tm + ((th - tm) * event.pos[0] / canvas.size[0])
+                cursor = get_cursor_time(event)
                 # Build transformation :
                 kwargs = {'center': (cursor, 0.), 'radii': (3, 15), 'mag': 10}
                 transform = vist.nonlinear.Magnify1DTransform(**kwargs)
@@ -1198,8 +1217,8 @@ class Visuals(CanvasShortcuts):
         PROFILER('Topoplot', level=1)
 
         # =================== SHORTCUTS ===================
-        vbcanvas = self._chanCanvas + [self._specCanvas, self._hypCanvas]
-        for k in vbcanvas:
-            CanvasShortcuts.__init__(self, k.canvas)
+        axiscanvas = self._chanCanvas + [self._specCanvas, self._hypCanvas]
+        for axiscan in axiscanvas:
+            CanvasShortcuts.__init__(self, axiscan)
         self._shpopup.set_shortcuts(self.sh)
         PROFILER('Shortcuts', level=1)
