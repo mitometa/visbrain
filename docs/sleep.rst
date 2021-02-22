@@ -69,6 +69,7 @@ Main features
               <b>Hypnogram</b>
               <ul>
                 <li>Load, edit and save</li>
+                <li>Flexible definition of epochs for scoring</li>
                 <li>Real-time computation of sleep statistics</li>
                 <li>Export high-quality hypnogram figure</li>
               </ul>
@@ -570,7 +571,10 @@ Multitaper          Multitaper-based Wigner spectrogram     `lspopt <https://git
 Hypnogram scoring
 ~~~~~~~~~~~~~~~~~
 
-Sleep offers two possibilities to score the hypnogram: using shortcuts or using the :ref:`scoretable`.
+Sleep offers three possibilities to score the hypnogram:
+* using shortcuts,
+* using the :ref:`scoretable`,
+* selecting epochs for scoring with the mouse (click and drag)
 
 .. _scoretable:
 
@@ -644,6 +648,22 @@ explicitly changing the scoring window size.
 .. figure::  _static/sleep/sleep_scoring_unlocked_zoom.png
    :align:   center
    Use the "Zoom" mode to visualize the hypnogram around the scored epoch
+
+Scoring with the mouse
+^^^^^^^^^^
+
+By clicking and dragging the mouse on one of the channel axis, you can define
+an arbitrary "scoring window", which can then be scored with one of the
+shortcuts.
+
+Score the epoch or click a second time on one of the axis to dismiss the custom
+scoring window and revert to the default (centered) scoring window.
+
+
+.. figure::  _static/sleep/custom_scoring_window.png
+   :align:   center
+   Click and drag the mouse to define a custom window for scoring.
+
 
 .. ----------------------------------------------------------------------------
 ..                              DETECTIONS
