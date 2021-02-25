@@ -267,6 +267,7 @@ class Sleep(_PyQtModule, ReadSleepData, UiInit, Visuals, UiElements,
         self._SpecW.setVisible(True)
         self._HypW.setVisible(True)
         self._TimeAxisW.setVisible(True)
+        self._videoW.setVisible(False)
         # File to load :
         if self._config_file is not None:  # Config file
             self._load_config(filename=self._config_file)

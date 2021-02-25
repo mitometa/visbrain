@@ -79,6 +79,8 @@ class UiMenu(HelpMenu):
         self.menuDispIndic.triggered.connect(self._disptog_indic)
         # Topoplot :
         self.menuDispTopo.triggered.connect(self._disptog_topo)
+        # Video :
+        self.menuDispVideo.triggered.connect(self._disptog_video)
         # Zoom :
         self.menuDispZoom.triggered.connect(self._disptog_zoom)
 
@@ -412,6 +414,7 @@ class UiMenu(HelpMenu):
                 self._disptog_hyp()
                 self._disptog_timeax()
                 self._disptog_topo()
+                self._disptog_video()
                 self._disptog_indic()
                 self._disptog_zoom()
                 self._fcn_grid_toggle()
@@ -562,6 +565,14 @@ class UiMenu(HelpMenu):
         if viz:
             self._fcn_topo_settings()
             self._fcn_slider_move()
+
+    def _disptog_video(self):
+        """Toggle method for display / hide the video.
+
+        Shortcut : V
+        """
+        viz = self.menuDispVideo.isChecked()
+        self._videoW.setVisible(viz)
 
     def _disptog_indic(self):
         """Toggle method for display / hide the time indicators."""

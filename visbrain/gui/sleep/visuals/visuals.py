@@ -953,6 +953,7 @@ class CanvasShortcuts(object):
             ('p', 'Display / hide navigation bar'),
             ('x', 'Display / hide time axis'),
             ('g', 'Display / hide time grid'),
+            ('v', 'Display / hide video'),
             ('z', 'Enable / disable zooming'),
             ('i', 'Enable / disable indicators'),
             ('Double clik', 'Insert annotation'),
