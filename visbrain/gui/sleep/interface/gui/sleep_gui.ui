@@ -12,8 +12,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1359</width>
-    <height>1116</height>
+    <width>1467</width>
+    <height>830</height>
    </rect>
   </property>
   <property name="font">
@@ -103,7 +103,7 @@
            <enum>QTabWidget::Rounded</enum>
           </property>
           <property name="currentIndex">
-           <number>4</number>
+           <number>0</number>
           </property>
           <property name="movable">
            <bool>true</bool>
@@ -251,8 +251,8 @@ type</string>
                        <rect>
                         <x>0</x>
                         <y>0</y>
-                        <width>341</width>
-                        <height>657</height>
+                        <width>453</width>
+                        <height>260</height>
                        </rect>
                       </property>
                       <layout class="QVBoxLayout" name="verticalLayout_14">
@@ -2557,7 +2557,7 @@ re-referenced</string>
                        <rect>
                         <x>0</x>
                         <y>0</y>
-                        <width>98</width>
+                        <width>461</width>
                         <height>298</height>
                        </rect>
                       </property>
@@ -4338,7 +4338,7 @@ display</string>
                  <property name="topMargin">
                   <number>3</number>
                  </property>
-                 <item>
+                 <item alignment="Qt::AlignLeft">
                   <widget class="QLabel" name="_txtCursor">
                    <property name="font">
                     <font>
@@ -4356,6 +4356,9 @@ display</string>
                    <property name="orientation">
                     <enum>Qt::Horizontal</enum>
                    </property>
+                   <property name="sizeType">
+                    <enum>QSizePolicy::Minimum</enum>
+                   </property>
                    <property name="sizeHint" stdset="0">
                     <size>
                      <width>40</width>
@@ -4364,7 +4367,7 @@ display</string>
                    </property>
                   </spacer>
                  </item>
-                 <item>
+                 <item alignment="Qt::AlignHCenter">
                   <widget class="QLabel" name="_SlText">
                    <property name="text">
                     <string>TextLabel</string>
@@ -4393,25 +4396,12 @@ display</string>
                    </property>
                   </spacer>
                  </item>
-                 <item>
+                 <item alignment="Qt::AlignRight">
                   <widget class="QPushButton" name="_AnnotateRun">
                    <property name="text">
                     <string>Annotate</string>
                    </property>
                   </widget>
-                 </item>
-                 <item>
-                  <spacer name="horizontalSpacer_29">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
                  </item>
                 </layout>
                </item>
@@ -4718,8 +4708,8 @@ display</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1359</width>
-     <height>21</height>
+     <width>1467</width>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFiles">
