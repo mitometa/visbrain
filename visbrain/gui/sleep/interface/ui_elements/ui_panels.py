@@ -1,12 +1,13 @@
 """Main class for settings managment."""
-from PyQt5 import QtCore, QtGui, QtWidgets
-
 import numpy as np
 
-from ..ui_init import AxisCanvas, TimeAxis
-from visbrain.utils import mpl_cmap, color2vb
+from PyQt5 import QtCore, QtGui, QtWidgets
 from visbrain.config import PROFILER
 from visbrain.io.dependencies import is_lspopt_installed
+from visbrain.utils import color2vb, mpl_cmap
+from vispy import scene
+
+from ..ui_init import AxisCanvas, TimeAxis
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8  # noqa
