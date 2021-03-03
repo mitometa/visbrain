@@ -939,18 +939,25 @@ class VideoSleep(object):
         self._videoSliderW = sliderW
         self._videoInfoW = infoW
         self._videoOffsetW = offsetW
+        self._mediaPlayer = QMediaPlayer()
 
         self._duration = None  # (s). Set once loaded
         self._offset = offset if offset is not None else 0
         self._videoOffsetW.setValue(self._offset)
 
+        self._loaded = False
+
+        if self.filepath is None:
+            self._videoTitleW.setText("No video file provided.")
+            self._disable_widgets()
+            return
+
         # Load vid
-        self._mediaPlayer = QMediaPlayer()
         self._mediaPlayer.setMedia(
             QMediaContent(QUrl.fromLocalFile(filepath))
         )
-        self._loaded = False
         self._mediaPlayer.durationChanged.connect(self._on_loaded)
+        self._mediaPlayer.error.connect(self._on_error)
         self._mediaPlayer.setVideoOutput(self._videoPlayerW)
 
         # Set proper aspect ratio (works only with hack https://stackoverflow.com/a/51736245/7355898) # noqa
@@ -961,22 +968,15 @@ class VideoSleep(object):
         self._mediaPlayer.setNotifyInterval(500)
         self._videoSliderW.valueChanged.connect(self._on_sliderMoved)
         self._videoPlayW.clicked.connect(self.toggle_play_pause)
-        # Info
-        if filepath is None or not Path(filepath).exists():
-            self._videoInfoW.setText("??? / ???")
-            if filepath is None:
-                self._videoTitleW.setText("No video file provided.")
-            else:
-                self._videoTitleW.setText(
-                    f"Could not load video."
-                )
-                print("Could not load video at {filepath}")
-            self._videoPlayW.setEnabled(False)
-            self._videoOffsetW.setEnabled(False)
-        else:
-            dir, name = Path(filepath).parents[0].name, Path(filepath).name
-            self._videoTitleW.setText(f"{dir} / {name}")
-            self._on_positionChanged()
+        dir, name = Path(filepath).parents[0].name, Path(filepath).name
+        self._videoTitleW.setText(f"{dir} / {name}")
+        self._on_positionChanged()
+
+    def _disable_widgets(self):
+        self._videoOffsetW.setEnabled(False)
+        self._videoPlayW.setEnabled(False)
+        self._videoSliderW.setEnabled(False)
+        self._videoInfoW.setText("")
 
     def _on_loaded(self):
         # Update file info once the file is loaded
@@ -986,6 +986,19 @@ class VideoSleep(object):
         self._videoSliderW.setEnabled(True)
         # Update txt info
         self._on_positionChanged()
+
+    def _on_error(self):
+        self._disable_widgets()
+        error_msg = (
+            f"Error loading video at {self.filepath} in QMediaPlayer, "
+            f"error_code={self._mediaPlayer.error()}, "
+            f"error_string: {self._mediaPlayer.errorString()}"
+        )
+        self._videoTitleW.setText(error_msg)
+        import warnings
+        import sys
+        warnings.warn(error_msg)
+        sys.stderr.flush()
 
     def _on_sliderMoved(self):
         assert self._loaded  # Slider should be disabled before then
