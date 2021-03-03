@@ -1281,6 +1281,10 @@ class CanvasShortcuts(object):
                 self._mouse_pressed = True
                 self._mousescoring_active = False  # Active once actually drags
                 self._mouse_scorwin_xlim = (cursor, None)
+            # ------------- Video -------------
+            # Sync vid to start of current scoring window
+            self._video.set_video_time(self._mouse_scorwin_xlim[0])
+
 
         @canvas.events.mouse_move.connect
         def on_mouse_move(event):
@@ -1343,6 +1347,7 @@ class CanvasShortcuts(object):
             ):
                 self._mousescoring_active = False
             self._update_scorwin_indicator()
+            self._video.set_video_time(self._xlim_scor[0])
 
 
 class Visuals(CanvasShortcuts):

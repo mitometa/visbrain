@@ -347,10 +347,12 @@ class UiSettings(object):
         # Redraw the scoring window indicator bars
         self._update_scorwin_indicator()
         # If the scoring window size changed because user set it from the
-        # settings, change slider step. Otherwise do nothing
+        # settings, change slider step and update video frame.
         if not self._mouse_pressed:
             scorwin = self._ScorWin.value()
             self._SigSlStep.setValue(scorwin)
+            # Sync vid to start of current scoring window
+            self._video.set_video_time(self._xlim_scor[0])
 
     def _fcn_slider_win_selection(self):
         """Move slider using window spin."""
