@@ -288,6 +288,10 @@ class UiSettings(object):
         self._hypYLabels[hypYrank + 1].setStyleSheet("QLabel {color: " +
                                                      hypcol + ";}")
 
+        # ================= VIDEO =================
+        # Sync to start of current scoring window
+        self._video.set_video_time(self._xlim_scor[0])
+
     def _fcn_slider_settings(self):
         """Function applied to change slider settings."""
         # Get current slider value :

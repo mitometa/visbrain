@@ -1041,6 +1041,18 @@ class VideoSleep(object):
     @property
     def offset(self):
         return self._videoOffsetW.value()
+
+    def set_video_time(self, gui_time):
+        if self._loaded:
+            video_time = (gui_time + self.offset)  # (s)
+            if video_time >= 0 and video_time <= self._duration:
+                self.play()
+                self._mediaPlayer.setPosition(
+                    video_time * 1000
+                )
+                self.pause()
+
+
 """
 ###############################################################################
 # SHORTCUTS
