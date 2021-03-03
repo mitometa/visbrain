@@ -4573,19 +4573,6 @@ display</string>
            <number>0</number>
           </property>
           <item>
-           <spacer name="horizontalSpacer_17">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
            <widget class="QFrame" name="_slFrame">
             <property name="minimumSize">
              <size>
@@ -4906,19 +4893,6 @@ display</string>
                  </item>
                 </widget>
                </item>
-               <item row="2" column="18">
-                <spacer name="horizontalSpacer_3">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
                <item row="3" column="0" colspan="18">
                 <layout class="QHBoxLayout" name="horizontalLayout_22_1">
                  <property name="bottomMargin">
@@ -4974,19 +4948,6 @@ display</string>
              </item>
             </layout>
            </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_16">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
           </item>
          </layout>
         </item>
