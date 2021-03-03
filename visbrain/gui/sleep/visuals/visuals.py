@@ -1395,10 +1395,8 @@ class Visuals(CanvasShortcuts):
         PROFILER('Topoplot', level=1)
 
         # =================== VIDEO ===================
-        filepath = None
-        offset = None
         self._video = VideoSleep(
-            filepath, offset,
+            self._video_file, self._video_offset,
             playerW=self._videoPlayerW, titleW=self._videoTitleW,
             playW=self._videoPlayW, sliderW=self._videoSliderW,
             infoW=self._videoInfoW, offsetW=self._videoOffsetW,

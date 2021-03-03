@@ -58,6 +58,12 @@ class Sleep(_PyQtModule, ReadSleepData, UiInit, Visuals, UiElements,
         to the documentation for an exemple. The default configuration
         contains the following states: ['Art', 'Wake', 'REM', 'N1', 'N2', 'N3']
         and their associated values: [-1, 0, 4, 1, 2, 3]
+    video_file : path-like | None
+        Path to the file to load in the video viewer. Supported formats are
+        the same as Qt's QMediaPlayer class.
+    video_offset : float | None
+        Offset between start of signal and start of video. Negative values
+        mean the video starts after the recording. (default 0)
     preload : bool | True
         Preload data into memory. For large datasets, turn this parameter to
         True.
@@ -83,8 +89,9 @@ class Sleep(_PyQtModule, ReadSleepData, UiInit, Visuals, UiElements,
 
     def __init__(self, data=None, hypno=None, config_file=None,
                  annotations=None, channels=None, sf=None, downsample=100.,
-                 axis=True, states_config_file=None, preload=True,
-                 use_mne=False, kwargs_mne={}, verbose=None):
+                 axis=True, states_config_file=None, video_file=None,
+                 video_offset=None, preload=True, use_mne=False, kwargs_mne={},
+                 verbose=None):
         """Init."""
         _PyQtModule.__init__(self, verbose=verbose, icon='sleep_icon.svg')
         # ====================== APP CREATION ======================
@@ -100,7 +107,9 @@ class Sleep(_PyQtModule, ReadSleepData, UiInit, Visuals, UiElements,
         PROFILER("Import file", as_type='title')
         ReadSleepData.__init__(self, data, channels, sf, hypno,
                                states_config_file, preload, use_mne,
-                               downsample, kwargs_mne, annotations)
+                               downsample, kwargs_mne, annotations,
+                               video_file=video_file,
+                               video_offset=video_offset)
 
         # ====================== VARIABLES ======================
         # Check all data :
