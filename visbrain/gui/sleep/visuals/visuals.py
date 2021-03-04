@@ -1283,7 +1283,7 @@ class CanvasShortcuts(object):
                 self._mouse_scorwin_xlim = (cursor, None)
             # ------------- Video -------------
             # Sync vid to start of current scoring window
-            self._video.set_video_time(self._mouse_scorwin_xlim[0])
+            self._video.set_video_time(cursor)
 
 
         @canvas.events.mouse_move.connect
