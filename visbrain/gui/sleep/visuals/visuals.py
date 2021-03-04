@@ -932,7 +932,7 @@ class VideoSleep(object):
     def __init__(self, filepath, offset, playerW=None, titleW=None, playW=None,
                  sliderW=None, infoW=None, offsetW=None, loadW=None):
 
-        self.filepath = filepath
+        self._filepath = filepath
         # Inherit
         self._videoPlayerW = playerW
         self._videoTitleW = titleW
@@ -1084,6 +1084,16 @@ class VideoSleep(object):
     @property
     def offset(self):
         return self._videoOffsetW.value()
+
+    @property
+    def filepath(self):
+        return self._filepath
+
+    @filepath.setter
+    def filepath(self, value):
+        self._filepath = value
+        self._load_file()
+        self.pause()
 
     def set_video_time(self, gui_time):
         if self._loaded:

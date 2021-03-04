@@ -278,6 +278,9 @@ class UiMenu(HelpMenu):
             config['Display_Scoring_Window'] = self._ScorWinVisible.isChecked()
             config['Grid'] = self._slGrid.isChecked()
             config['Unit'] = self._slRules.currentIndex()
+            # Video
+            config['Video_File'] = self._video.filepath
+            config['Video_Offset'] = self._video.offset
             save_config_json(filename, config)
 
     # ______________________ ANNOTATION TABLE ______________________
@@ -406,6 +409,9 @@ class UiMenu(HelpMenu):
                 _try("self._ScorWinVisible.setChecked("
                      "config['Display_Scoring_Window'])")
                 _try("self._slRules.setCurrentIndex(config['Unit'])")
+                # Video
+                _try("self._video.filepath = config['Video_File']")
+                _try("self._video.offset = config['Video_Offset']")
                 # Update display
                 self._fcn_chan_viz()
                 self._fcn_chan_amplitude()
