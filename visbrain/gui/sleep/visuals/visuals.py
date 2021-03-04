@@ -12,7 +12,8 @@ import scipy.signal as scpsig
 from scipy.stats import rankdata
 
 import vispy.visuals.transforms as vist
-from PyQt5.QtCore import Qt, QUrl
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import Qt, QUrl, QDir
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 from visbrain.config import PROFILER
 from visbrain.utils import PrepareData, cmap_to_glsl, color2vb
@@ -929,7 +930,7 @@ Display synced video
 class VideoSleep(object):
 
     def __init__(self, filepath, offset, playerW=None, titleW=None, playW=None,
-                 sliderW=None, infoW=None, offsetW=None):
+                 sliderW=None, infoW=None, offsetW=None, loadW=None):
 
         self.filepath = filepath
         # Inherit
@@ -939,7 +940,7 @@ class VideoSleep(object):
         self._videoSliderW = sliderW
         self._videoInfoW = infoW
         self._videoOffsetW = offsetW
-        self._mediaPlayer = QMediaPlayer()
+        self._videoLoadW = loadW
 
         self._duration = None  # (s). Set once loaded
         self._offset = offset if offset is not None else 0
@@ -952,25 +953,54 @@ class VideoSleep(object):
             self._disable_widgets()
             return
 
-        # Load vid
-        self._mediaPlayer.setMedia(
-            QMediaContent(QUrl.fromLocalFile(filepath))
-        )
+        # Initialize media player
+        self._mediaPlayer = QMediaPlayer()
         self._mediaPlayer.durationChanged.connect(self._on_loaded)
         self._mediaPlayer.error.connect(self._on_error)
         self._mediaPlayer.setVideoOutput(self._videoPlayerW)
-
-        # Set proper aspect ratio (works only with hack https://stackoverflow.com/a/51736245/7355898) # noqa
-        self._videoPlayerW.setAspectRatioMode(Qt.KeepAspectRatio)
-
-        # connect and set info
         self._mediaPlayer.positionChanged.connect(self._on_positionChanged)
         self._mediaPlayer.setNotifyInterval(500)
         self._videoSliderW.valueChanged.connect(self._on_sliderMoved)
         self._videoPlayW.clicked.connect(self.toggle_play_pause)
-        dir, name = Path(filepath).parents[0].name, Path(filepath).name
+        self._videoLoadW.clicked.connect(self._on_load_click)
+
+        # Set proper aspect ratio (works only with hack https://stackoverflow.com/a/51736245/7355898) # noqa
+        self._videoPlayerW.setAspectRatioMode(Qt.KeepAspectRatio)
+
+        # Load vid
+        self._load_file()
+        self._mediaPlayer.setMedia(
+            QMediaContent(QUrl.fromLocalFile(filepath))
+        )
+
+    def _on_load_click(self):
+        dialog = QtWidgets.QFileDialog()
+        dialog.setWindowTitle('Select video file.')
+        dialog.setNameFilter('Video files (*.*)')
+        if self.filepath is None:
+            dialog.setDirectory(QDir.currentPath())
+        else:
+            dialog.setDirectory(str(Path(self.filepath).parent))
+        dialog.setFileMode(dialog.ExistingFile)
+        if dialog.exec_() == dialog.Accepted:
+            self.filepath = str(dialog.selectedFiles()[0])
+            self._load_file()
+
+    def _load_file(self):
+        self._loaded = False
+        self._videoOffsetW.setEnabled(True)
+        self._videoPlayW.setEnabled(True)
+        self._videoSliderW.setEnabled(False)
+        self._mediaPlayer.setMedia(
+            QMediaContent(QUrl.fromLocalFile(self.filepath))
+        )
+        dir = Path(self.filepath).parents[0].name
+        name = Path(self.filepath).name
         self._videoTitleW.setText(f"{dir} / {name}")
         self._on_positionChanged()
+        # I don't know why this is not called
+        if not self._mediaPlayer.duration() == 0:
+            self._on_loaded()
 
     def _disable_widgets(self):
         self._videoOffsetW.setEnabled(False)
@@ -1418,6 +1448,7 @@ class Visuals(CanvasShortcuts):
             playerW=self._videoPlayerW, titleW=self._videoTitleW,
             playW=self._videoPlayW, sliderW=self._videoSliderW,
             infoW=self._videoInfoW, offsetW=self._videoOffsetW,
+            loadW=self._videoLoadW,
         )
         PROFILER("Videoplot", level=1)
 

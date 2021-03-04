@@ -4280,7 +4280,7 @@ display</string>
                 </property>
                 <property name="minimumSize">
                  <size>
-                  <width>300</width>
+                  <width>0</width>
                   <height>0</height>
                  </size>
                 </property>
@@ -4291,7 +4291,7 @@ display</string>
                  </size>
                 </property>
                 <property name="text">
-                 <string>Video Title</string>
+                 <string>Video TitleVideo TitleVideo TitleVideo TitleVideo TitleVideo Titl</string>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -4302,20 +4302,23 @@ display</string>
                </widget>
               </item>
               <item>
-               <spacer name="horizontalSpacer_29">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
+               <widget class="QPushButton" name="_videoLoadW">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
                 </property>
-                <property name="sizeType">
-                 <enum>QSizePolicy::Expanding</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
+                <property name="maximumSize">
                  <size>
-                  <width>50</width>
-                  <height>20</height>
+                  <width>60</width>
+                  <height>16777215</height>
                  </size>
                 </property>
-               </spacer>
+                <property name="text">
+                 <string>Load</string>
+                </property>
+               </widget>
               </item>
               <item>
                <widget class="QDoubleSpinBox" name="_videoOffsetW">
@@ -4333,7 +4336,7 @@ display</string>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>60</width>
+                  <width>80</width>
                   <height>16777215</height>
                  </size>
                 </property>
@@ -4403,7 +4406,7 @@ display</string>
                <widget class="QLabel" name="_videoInfoW">
                 <property name="minimumSize">
                  <size>
-                  <width>120</width>
+                  <width>140</width>
                   <height>0</height>
                  </size>
                 </property>
@@ -4948,7 +4951,7 @@ display</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1680</width>
+     <width>1609</width>
      <height>22</height>
     </rect>
    </property>
