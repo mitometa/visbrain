@@ -1308,7 +1308,7 @@ class CanvasShortcuts(object):
                     k.update()
             # Set time position to the cursor text :
             cursor = np.round(cursor * 1000.) / 1000.
-            self._txtCursor.setText('Cursor : ' + str(cursor) + ' sec')
+            self._txtCursor.setText(f'Cursor: {np.round(cursor, 2)}s')
             # Click-and-drag scoring window
             if self._mouse_pressed:
                 # Enter mouse-scoring mode if not already the case
