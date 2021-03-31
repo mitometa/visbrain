@@ -5,6 +5,9 @@ from PyQt5.QtCore import QObjectCleanupHandler
 
 import vispy.visuals.transforms as vist
 
+import logging
+logging.basicConfig(filename='sleep.log', encoding='utf-8', level=logging.DEBUG)
+
 
 class UiSettings(object):
     """Main class for settings managment."""
@@ -213,6 +216,7 @@ class UiSettings(object):
 
     def _fcn_slider_move(self):
         """Function applied when the slider move."""
+        logging.debug(f"Slider value={self._SlVal.value()} min={self._SlVal.minimum()}, max={self._SlVal.maximum()}, step={self._SigSlStep.value()}. data max={self._time.max()}")
         # ================= Scoring mode =================
         # Exit mousescoring mode (revert to regular (centered) scoring window)
         self._mousescoring_active = False
@@ -319,7 +323,7 @@ class UiSettings(object):
         self._SlGoto.setMaximum((self._time.max() - win))
         # Re-set slider value :
         self._SlVal.setValue(sl * self._SlVal.maximum() / slmax)
-
+        logging.debug(f"Slider value={self._SlVal.value()} min={self._SlVal.minimum()}, max={self._SlVal.maximum()}, step={self._SigSlStep.value()}. data max={self._time.max()}")
         if self._slOnStart:
             self._fcn_slider_move()
             # Update grid :
@@ -368,6 +372,7 @@ class UiSettings(object):
     def _fcn_slider_win_selection(self):
         """Move slider using window spin."""
         self._SlVal.setValue(self._SlGoto.value() / self._SigSlStep.value())
+        logging.debug(f"Slider value={self._SlVal.value()} min={self._SlVal.minimum()}, max={self._SlVal.maximum()}, step={self._SigSlStep.value()}. data max={self._time.max()}")
 
     def _fcn_slider_magnify(self):
         """Magnify signals."""
