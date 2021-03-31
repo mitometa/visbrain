@@ -413,6 +413,8 @@ class UiMenu(HelpMenu):
                 _try("self._video.filepath = config['Video_File']")
                 _try("self._video.offset = config['Video_Offset']")
                 # Update display
+                import logging
+                logging.debug(f"Load cfg: Slider value={self._SlVal.value()} min={self._SlVal.minimum()}, max={self._SlVal.maximum()}, step={self._SigSlStep.value()}. data max={self._time.max()}")
                 self._fcn_chan_viz()
                 self._fcn_chan_amplitude()
                 self._fcn_spec_set_data()
@@ -430,6 +432,7 @@ class UiMenu(HelpMenu):
                 self._fcn_chan_sym_amp()
                 self._fcn_set_hypno_lw()
                 self._fcn_set_hypno_color()
+                logging.debug(f"done loading cfg: Slider value={self._SlVal.value()} min={self._SlVal.minimum()}, max={self._SlVal.maximum()}, step={self._SigSlStep.value()}. data max={self._time.max()}")
 
     def _load_detect_all(self, *args, filename=None):
         """Load all detections."""
