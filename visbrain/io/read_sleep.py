@@ -40,7 +40,8 @@ class ReadSleepData(object):
     """Main class for reading sleep data."""
 
     def __init__(self, data, channels, sf, hypno, states_config_file, preload,
-                 use_mne, downsample, kwargs_mne, annotations):
+                 use_mne, downsample, kwargs_mne, annotations, video_file=None,
+                 video_offset=None):
         """Init."""
         # ========================== LOAD DATA ==========================
         # Dialog window if data is None :
@@ -148,6 +149,16 @@ class ReadSleepData(object):
             # Oversample then downsample :
             hypno = oversample_hypno(hypno, self._N)[::dsf]
             PROFILER("Hypnogram file loaded", level=1)
+
+        # ========================== VIDEO ==========================
+        if video_file is not None and not os.path.isfile(video_file):
+            raise ValueError(
+                f"No video file at `video_file` path: `{video_file}"
+            )
+        self._video_file = video_file
+        if video_offset is None:
+            video_offset = 0.0
+        self._video_offset = float(video_offset)
 
         # ========================== CHECKING ==========================
         # ---------- DATA ----------

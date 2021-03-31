@@ -79,6 +79,8 @@ class UiMenu(HelpMenu):
         self.menuDispIndic.triggered.connect(self._disptog_indic)
         # Topoplot :
         self.menuDispTopo.triggered.connect(self._disptog_topo)
+        # Video :
+        self.menuDispVideo.triggered.connect(self._disptog_video)
         # Zoom :
         self.menuDispZoom.triggered.connect(self._disptog_zoom)
 
@@ -276,6 +278,9 @@ class UiMenu(HelpMenu):
             config['Display_Scoring_Window'] = self._ScorWinVisible.isChecked()
             config['Grid'] = self._slGrid.isChecked()
             config['Unit'] = self._slRules.currentIndex()
+            # Video
+            config['Video_File'] = self._video.filepath
+            config['Video_Offset'] = self._video.offset
             save_config_json(filename, config)
 
     # ______________________ ANNOTATION TABLE ______________________
@@ -404,6 +409,9 @@ class UiMenu(HelpMenu):
                 _try("self._ScorWinVisible.setChecked("
                      "config['Display_Scoring_Window'])")
                 _try("self._slRules.setCurrentIndex(config['Unit'])")
+                # Video
+                _try("self._video.filepath = config['Video_File']")
+                _try("self._video.offset = config['Video_Offset']")
                 # Update display
                 self._fcn_chan_viz()
                 self._fcn_chan_amplitude()
@@ -412,6 +420,7 @@ class UiMenu(HelpMenu):
                 self._disptog_hyp()
                 self._disptog_timeax()
                 self._disptog_topo()
+                self._disptog_video()
                 self._disptog_indic()
                 self._disptog_zoom()
                 self._fcn_grid_toggle()
@@ -562,6 +571,14 @@ class UiMenu(HelpMenu):
         if viz:
             self._fcn_topo_settings()
             self._fcn_slider_move()
+
+    def _disptog_video(self):
+        """Toggle method for display / hide the video.
+
+        Shortcut : V
+        """
+        viz = self.menuDispVideo.isChecked()
+        self._videoW.setVisible(viz)
 
     def _disptog_indic(self):
         """Toggle method for display / hide the time indicators."""

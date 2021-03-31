@@ -61,6 +61,7 @@ Main features
                 <li>Time-frequency (=spectrogram)</li>
                 <li>Hypnogram</li>
                 <li>Topographic map</li>
+                <li>Synchronized video</li>
               </ul>
             </div>
         </div>
@@ -146,6 +147,10 @@ The contextual menu allows to perform several functions such as the loading and 
 
 **Settings panel** :
 The setting panels is where most of the (advanced) functions of the software are! Among other things, you can control which channel to display, adjust the amplitudes, customize the spectrogram and hypnogram, compute the duration of each vigilance state, add annotations to the recording, and perform a bunch of semi-automatic detection (spindles, K-complexes...). See the section :ref:`sleep_settings_panel` for a description of each tab.
+
+**Video panel** :
+The video panel (revealed with the shortcut "v") displays frames of a video file synchronized to the data. See :ref:`_video`.
+
 
 .. _sleep_settings_panel:
 
@@ -289,6 +294,7 @@ h                       Display / hide hypnogram
 p                       Display / hide navigation bar
 x                       Display / hide time axis
 g                       Display / hide grid
+v                       Display / hide video
 z                       Enable / disable zoom
 i                       Enable / disable indicators
 CTRL + Num              Display / hide the channel Num [0, 9]
@@ -315,6 +321,49 @@ w                       Score the current epoch as Wake
 3                       Score the current epoch as N3
 r                       Score the current epoch as REM
 ===================     =======================================================
+
+.. _video:
+
+Video
+^^^^^
+
+The video panel can be revealed with the shortcut `v`.
+
+User can specify a file and the offset between the start of the recording and
+the start of the video (in seconds) either by specifying the `video_file` and
+`video_offset` kwargs when starting the Sleep GUI, or with the corresponding
+widgets in the video panel.
+
+.. code-block:: python
+  from visbrain.gui import Sleep
+  
+  Sleep(video_path='path/to/my/video.mp4', video_offset=0).show()
+
+Note that the video formats supported are the same as those supported by the 
+QMediaPlayer class in Qt, and may vary depending on the platform. `.mp4` is a
+safe bet.
+
+A positive `offset` means the video was started before the recording.
+
+When the location of the current scoring window changes, the frame displayed is
+synchronized to the start of the scoring window (which may differ from the
+display window.)
+
+.. figure::  _static/sleep/video_panel.png
+   :align:   center
+
+.. Note::
+  Updating frames takes time. If you experience speed issues, try reducing the
+  frame rate or resolution of the video, or hide the video panel.
+
+.. Important::
+  Due to inherent limitations of the backend, it is possible that the timestamp
+  of the frame displayed differs significantly from the requested frame for
+  compressed videos. This is because only "key-frames" (or I-frames) can be
+  selected for display by Qt.
+  If you experience this issue, you may try increasing the number of i-frames in
+  your files (eg using ffmpeg).
+
 
 .. ##########################################################################
 .. ##########################################################################

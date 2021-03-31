@@ -5,12 +5,16 @@ hypnogram, indicator, shortcuts)
 """
 import itertools
 import logging
+from pathlib import Path
 
 import numpy as np
 import scipy.signal as scpsig
 from scipy.stats import rankdata
 
 import vispy.visuals.transforms as vist
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import Qt, QUrl, QDir
+from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 from visbrain.config import PROFILER
 from visbrain.utils import PrepareData, cmap_to_glsl, color2vb
 from visbrain.utils.sleep.event import _index_to_events
@@ -917,6 +921,193 @@ class ScorWinIndicator(object):
 
 """
 ###############################################################################
+# VIDEO
+###############################################################################
+Display synced video
+"""
+
+
+class VideoSleep(object):
+
+    def __init__(self, filepath, offset, playerW=None, titleW=None, playW=None,
+                 sliderW=None, infoW=None, offsetW=None, loadW=None):
+
+        self._filepath = filepath
+        # Inherit
+        self._videoPlayerW = playerW
+        self._videoTitleW = titleW
+        self._videoPlayW = playW
+        self._videoSliderW = sliderW
+        self._videoInfoW = infoW
+        self._videoOffsetW = offsetW
+        self._videoLoadW = loadW
+
+        self._duration = None  # (s). Set once loaded
+        self._offset = offset if offset is not None else 0
+        self._videoOffsetW.setValue(self._offset)
+
+        self._loaded = False
+
+        if self.filepath is None:
+            self._videoTitleW.setText("No video file provided.")
+            self._disable_widgets()
+            return
+
+        # Initialize media player
+        self._mediaPlayer = QMediaPlayer()
+        self._mediaPlayer.durationChanged.connect(self._on_loaded)
+        self._mediaPlayer.error.connect(self._on_error)
+        self._mediaPlayer.setVideoOutput(self._videoPlayerW)
+        self._mediaPlayer.positionChanged.connect(self._on_positionChanged)
+        self._mediaPlayer.setNotifyInterval(500)
+        self._videoSliderW.valueChanged.connect(self._on_sliderMoved)
+        self._videoPlayW.clicked.connect(self.toggle_play_pause)
+        self._videoLoadW.clicked.connect(self._on_load_click)
+
+        # Set proper aspect ratio (works only with hack https://stackoverflow.com/a/51736245/7355898) # noqa
+        self._videoPlayerW.setAspectRatioMode(Qt.KeepAspectRatio)
+
+        # Load vid
+        self._load_file()
+        self._mediaPlayer.setMedia(
+            QMediaContent(QUrl.fromLocalFile(filepath))
+        )
+
+    def _on_load_click(self):
+        dialog = QtWidgets.QFileDialog()
+        dialog.setWindowTitle('Select video file.')
+        dialog.setNameFilter('Video files (*.*)')
+        if self.filepath is None:
+            dialog.setDirectory(QDir.currentPath())
+        else:
+            dialog.setDirectory(str(Path(self.filepath).parent))
+        dialog.setFileMode(dialog.ExistingFile)
+        if dialog.exec_() == dialog.Accepted:
+            self.filepath = str(dialog.selectedFiles()[0])
+            self._load_file()
+
+    def _load_file(self):
+        self._loaded = False
+        self._videoOffsetW.setEnabled(True)
+        self._videoPlayW.setEnabled(True)
+        self._videoSliderW.setEnabled(False)
+        self._mediaPlayer.setMedia(
+            QMediaContent(QUrl.fromLocalFile(self.filepath))
+        )
+        dir = Path(self.filepath).parents[0].name
+        name = Path(self.filepath).name
+        self._videoTitleW.setText(f"{dir} / {name}")
+        self._on_positionChanged()
+        # I don't know why this is not called
+        if not self._mediaPlayer.duration() == 0:
+            self._on_loaded()
+
+    def _disable_widgets(self):
+        self._videoOffsetW.setEnabled(False)
+        self._videoPlayW.setEnabled(False)
+        self._videoSliderW.setEnabled(False)
+        self._videoInfoW.setText("")
+
+    def _on_loaded(self):
+        # Update file info once the file is loaded
+        self._loaded = True
+        self._duration = self._mediaPlayer.duration() / 1000  # 0 before loaded
+        self._videoSliderW.setMaximum(self._duration)
+        self._videoSliderW.setEnabled(True)
+        # Update txt info
+        self._on_positionChanged()
+
+    def _on_error(self):
+        self._disable_widgets()
+        error_msg = (
+            f"Error loading video at {self.filepath} in QMediaPlayer, "
+            f"error_code={self._mediaPlayer.error()}, "
+            f"error_string: {self._mediaPlayer.errorString()}"
+        )
+        self._videoTitleW.setText(error_msg)
+        import warnings
+        import sys
+        warnings.warn(error_msg)
+        sys.stderr.flush()
+
+    def _on_sliderMoved(self):
+        assert self._loaded  # Slider should be disabled before then
+        # It's user who's moving the slider
+        # if self._videoSliderW.isSliderDown():
+        self._mediaPlayer.setPosition(self._videoSliderW.value() * 1000)
+
+    def _on_positionChanged(self):
+        # Info
+        currentTime = round(self._mediaPlayer.position() / 1000, 1)
+        if not self._loaded:
+            txt = f"{currentTime} / ??? (s) (Loading)"
+        else:
+            txt = f"{currentTime} / {round(self._duration, 1)} (s)"
+        self._videoInfoW.setText(txt)
+        # Update cursor once we know total run time
+        if self._loaded:
+            # Don't call callback to avoid being pulled back
+            self._videoSliderW.blockSignals(True)
+            self._videoSliderW.setValue(
+                self._mediaPlayer.position() / 1000
+            )
+            self._videoSliderW.blockSignals(False)
+
+    def toggle_play_pause(self):
+        # Currently playing:
+        if self._mediaPlayer.state() == self._mediaPlayer.PlayingState:
+            self.pause()
+        # Currently not playing
+        else:
+            self.play()
+
+    def play(self):
+        # Resize after play ( https://stackoverflow.com/a/51736245/7355898 )
+        from PyQt5.QtCore import QSize
+        s1 = self._videoPlayerW.size()
+        s2 = s1 + QSize(1, 1)
+        self._mediaPlayer.play()
+        self._videoPlayerW.resize(s2)  # enlarge by one pixel
+        self._videoPlayerW.resize(s1)  # return to original size
+        self._videoPlayW.setText('Pause')
+
+    def pause(self):
+        # Resize after play ( https://stackoverflow.com/a/51736245/7355898 )
+        from PyQt5.QtCore import QSize
+        s1 = self._videoPlayerW.size()
+        s2 = s1 + QSize(1, 1)
+        self._mediaPlayer.pause()
+        self._videoPlayerW.resize(s2)  # enlarge by one pixel
+        self._videoPlayerW.resize(s1)  # return to original size
+        self._videoPlayW.setText('Play')
+
+    @property
+    def offset(self):
+        return self._videoOffsetW.value()
+
+    @property
+    def filepath(self):
+        return self._filepath
+
+    @filepath.setter
+    def filepath(self, value):
+        self._filepath = value
+        self._load_file()
+        self.pause()
+
+    def set_video_time(self, gui_time):
+        if self._loaded:
+            video_time = (gui_time + self.offset)  # (s)
+            if video_time >= 0 and video_time <= self._duration:
+                self.play()
+                self._mediaPlayer.setPosition(
+                    video_time * 1000
+                )
+                self.pause()
+
+
+"""
+###############################################################################
 # SHORTCUTS
 ###############################################################################
 Shortcuts applied on each canvas.
@@ -953,6 +1144,7 @@ class CanvasShortcuts(object):
             ('p', 'Display / hide navigation bar'),
             ('x', 'Display / hide time axis'),
             ('g', 'Display / hide time grid'),
+            ('v', 'Display / hide video'),
             ('z', 'Enable / disable zooming'),
             ('i', 'Enable / disable indicators'),
             ('Double clik', 'Insert annotation'),
@@ -1129,6 +1321,10 @@ class CanvasShortcuts(object):
                 self._mouse_pressed = True
                 self._mousescoring_active = False  # Active once actually drags
                 self._mouse_scorwin_xlim = (cursor, None)
+            # ------------- Video -------------
+            # Sync vid to start of current scoring window
+            self._video.set_video_time(cursor)
+
 
         @canvas.events.mouse_move.connect
         def on_mouse_move(event):
@@ -1152,7 +1348,7 @@ class CanvasShortcuts(object):
                     k.update()
             # Set time position to the cursor text :
             cursor = np.round(cursor * 1000.) / 1000.
-            self._txtCursor.setText('Cursor : ' + str(cursor) + ' sec')
+            self._txtCursor.setText(f'Cursor: {np.round(cursor, 2)}s')
             # Click-and-drag scoring window
             if self._mouse_pressed and cursor >= 0:
                 # Enter mouse-scoring mode if not already the case
@@ -1191,6 +1387,7 @@ class CanvasShortcuts(object):
             ):
                 self._mousescoring_active = False
             self._update_scorwin_indicator()
+            self._video.set_video_time(self._xlim_scor[0])
 
 
 class Visuals(CanvasShortcuts):
@@ -1254,6 +1451,16 @@ class Visuals(CanvasShortcuts):
         cameras[3].aspect = 1.
         self._pan_pick.model().item(3).setEnabled(any(self._topo._keeponly))
         PROFILER('Topoplot', level=1)
+
+        # =================== VIDEO ===================
+        self._video = VideoSleep(
+            self._video_file, self._video_offset,
+            playerW=self._videoPlayerW, titleW=self._videoTitleW,
+            playW=self._videoPlayW, sliderW=self._videoSliderW,
+            infoW=self._videoInfoW, offsetW=self._videoOffsetW,
+            loadW=self._videoLoadW,
+        )
+        PROFILER("Videoplot", level=1)
 
         # =================== SHORTCUTS ===================
         axiscanvas = self._chanCanvas + [self._specCanvas, self._hypCanvas]

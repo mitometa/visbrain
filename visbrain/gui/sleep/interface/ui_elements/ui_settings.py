@@ -130,7 +130,6 @@ class UiSettings(object):
         """Return color of "current" vigilance state."""
         return self._hcolors[np.where(self._hvalues == self._hypref)[0]][0]
 
-
     # =====================================================================
     # SLIDER, DISPLAY WINDOW AND SCORING WINDOW
     # =====================================================================
@@ -143,14 +142,22 @@ class UiSettings(object):
         # Get unit and convert:
         if self._slAbsTime.isChecked():
             xlim = np.asarray(xlim) + self._toffset
-            start = str(datetime.datetime.utcfromtimestamp(
-                xlim[0])).split(' ')[1]
-            stend = str(datetime.datetime.utcfromtimestamp(
-                xlim[1])).split(' ')[1]
-            start_scor = str(datetime.datetime.utcfromtimestamp(
-                xlim_scor[0])).split(' ')[1]
-            stend_scor = str(datetime.datetime.utcfromtimestamp(
-                xlim_scor[1])).split(' ')[1]
+
+            def rounded_utc(timestamp):
+                # Round to 2 digits
+                tstring = str(
+                    datetime.datetime.utcfromtimestamp(timestamp)
+                ).split(' ')[1]  # hh:mm:ss or hh:mm:ss.xxx
+                if '.' in tstring:
+                    hhmmss, digits = tstring.split('.')
+                else:
+                    hhmmss, digits = tstring, '00'
+                return '.'.join([hhmmss, digits[0:2]])
+
+            start = rounded_utc(xlim[0])
+            stend = rounded_utc(xlim[1])
+            start_scor = rounded_utc(xlim_scor[0])
+            stend_scor = rounded_utc(xlim_scor[1])
             txt = "Window : [ " + start + " ; " + stend + " ] || " + \
                 "Scoring : [ " + start_scor + " ; " + stend_scor + " ] || " + \
                 "Vigilance state : " + state
@@ -158,17 +165,21 @@ class UiSettings(object):
             unit = self._slRules.currentText()
             if unit == 'seconds':
                 fact = 1.
+                short_unit = 'sec'
             elif unit == 'minutes':
                 fact = 60.
+                short_unit = 'min'
             elif unit == 'hours':
                 fact = 3600.
+                short_unit = 'hs'
             xconv = np.round(1000. * np.array(xlim) / fact) / 1000.
             xconv_scor = np.round(1000. * np.array(xlim_scor) / fact) / 1000.
             # Format string :
             txt = self._slTxtFormat.format(
-                start=str(xconv[0]), end=str(xconv[1]),
-                start_scor=str(xconv_scor[0]), end_scor=str(xconv_scor[1]),
-                unit=unit,
+                start=np.round(xconv[0], 2), end=np.round(xconv[1], 2),
+                start_scor=np.round(xconv_scor[0], 2),
+                end_scor=np.round(xconv_scor[1], 2),
+                unit=short_unit,
                 state=state)
         # Set text :
         self._SlText.setText(txt)
@@ -288,6 +299,10 @@ class UiSettings(object):
         self._hypYLabels[hypYrank + 1].setStyleSheet("QLabel {color: " +
                                                      hypcol + ";}")
 
+        # ================= VIDEO =================
+        # Sync to start of current scoring window
+        self._video.set_video_time(self._xlim_scor[0])
+
     def _fcn_slider_settings(self):
         """Function applied to change slider settings."""
         # Get current slider value :
@@ -343,10 +358,12 @@ class UiSettings(object):
         # Redraw the scoring window indicator bars
         self._update_scorwin_indicator()
         # If the scoring window size changed because user set it from the
-        # settings, change slider step. Otherwise do nothing
+        # settings, change slider step and update video frame.
         if not self._mouse_pressed:
             scorwin = self._ScorWin.value()
             self._SigSlStep.setValue(scorwin)
+            # Sync vid to start of current scoring window
+            self._video.set_video_time(self._xlim_scor[0])
 
     def _fcn_slider_win_selection(self):
         """Move slider using window spin."""
