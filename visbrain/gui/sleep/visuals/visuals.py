@@ -1154,7 +1154,7 @@ class CanvasShortcuts(object):
             cursor = np.round(cursor * 1000.) / 1000.
             self._txtCursor.setText('Cursor : ' + str(cursor) + ' sec')
             # Click-and-drag scoring window
-            if self._mouse_pressed:
+            if self._mouse_pressed and cursor >= 0:
                 # Enter mouse-scoring mode if not already the case
                 self._mousescoring_active = True
                 self._mouse_scorwin_xlim = (
