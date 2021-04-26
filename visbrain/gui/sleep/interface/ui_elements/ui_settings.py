@@ -15,6 +15,8 @@ class UiSettings(object):
         # SLIDER
         # =====================================================================
         self._slFrame.setMaximumHeight(100)
+        # Step for slider
+        self._SlStep = 0.1
         # Function applied when the slider move :
         self._slOnStart = False
         self._fcn_slider_settings()
@@ -26,8 +28,8 @@ class UiSettings(object):
         self._ScorWin.valueChanged.connect(self._fcn_scorwin_settings)
         self._ScorWin.setKeyboardTracking(False)
         # Function applied when the slider settings changed
-        self._SigSlStep.valueChanged.connect(self._fcn_slider_settings)
-        self._SigSlStep.setKeyboardTracking(False)
+        self._SigStep.valueChanged.connect(self._fcn_slider_settings)
+        self._SigStep.setKeyboardTracking(False)
         # Spin box for window selection :
         self._SlGoto.valueChanged.connect(self._fcn_slider_win_selection)
         self._SlGoto.setKeyboardTracking(False)
@@ -77,7 +79,8 @@ class UiSettings(object):
     def _xlim(self):
         """Display window xlim: (start, end)."""
         val = self._SlVal.value()
-        step = self._SigSlStep.value()
+        # step = self._SlVal.singleStep()
+        step = self._SlStep
         win = self._SigWin.value()
         return (val * step, val * step + win)
 
@@ -312,7 +315,7 @@ class UiSettings(object):
         # Set minimum :
         self._SlVal.setMinimum(self._time.min())
         # Set maximum :
-        step = self._SigSlStep.value()
+        step = self._SlStep
         self._SlVal.setMaximum(((self._time.max() - win) / step) + 1)
         self._SlVal.setTickInterval(step)
         self._SlVal.setSingleStep(step)
@@ -324,7 +327,7 @@ class UiSettings(object):
             self._fcn_slider_move()
             # Update grid :
             if self.menuDispZoom.isChecked():
-                self._hyp.set_grid(self._time, step)
+                self._hyp.set_grid(self._time, self._SigStep.value())
             else:
                 self._hyp.set_grid(self._time, win)
         else:
@@ -342,7 +345,7 @@ class UiSettings(object):
             self._ScorWin.setValue(win)
             self._ScorWin.blockSignals(False)
             # Change the slider step size
-            self._SigSlStep.setValue(win)
+            self._SigStep.setValue(win)
         # Redraw stuff as if we were moving the slider
         self._fcn_slider_move()
 
@@ -361,13 +364,13 @@ class UiSettings(object):
         # settings, change slider step and update video frame.
         if not self._mouse_pressed:
             scorwin = self._ScorWin.value()
-            self._SigSlStep.setValue(scorwin)
+            self._SigStep.setValue(scorwin)
             # Sync vid to start of current scoring window
             self._video.set_video_time(self._xlim_scor[0])
 
     def _fcn_slider_win_selection(self):
         """Move slider using window spin."""
-        self._SlVal.setValue(self._SlGoto.value() / self._SigSlStep.value())
+        self._SlVal.setValue(self._SlGoto.value() / self._SlStep)
 
     def _fcn_slider_magnify(self):
         """Magnify signals."""
@@ -415,7 +418,7 @@ class UiSettings(object):
             self._ScorWin.setValue(self._SigWin.value())
             self._ScorWin.blockSignals(False)
             # Set stepsize to _SigWin
-            self._SigSlStep.setValue(self._SigWin.value())
+            self._SigStep.setValue(self._SigWin.value())
             # Hide the scoring window indicators
             self._ScorWinVisible.setChecked(False)
             self._fcn_scorwin_indicator_toggle()

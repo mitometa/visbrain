@@ -1191,10 +1191,10 @@ class CanvasShortcuts(object):
             # ------------ SLIDER ------------
             elif event.text.lower() == 'n':  # Next (slider)
                 self._SlGoto.setValue(
-                    self._SlGoto.value() + self._SigSlStep.value())
+                    self._SlGoto.value() + self._SigStep.value())
             elif event.text.lower() == 'b':  # Before (slider)
                 self._SlGoto.setValue(
-                    self._SlGoto.value() - self._SigSlStep.value())
+                    self._SlGoto.value() - self._SigStep.value())
 
             # ------------ AMPLITUDE ------------
             elif event.text in ['-', '+']:  # Decrease / increase amplitude
@@ -1226,11 +1226,10 @@ class CanvasShortcuts(object):
                 ):
                     if event.text.lower() == sh.lower():
                         self._add_stage_on_scorwin(value)
-                        if self._mousescoring_active:
-                            self._fcn_slider_move()
-                        else:
-                            self._SlGoto.setValue(self._SlGoto.value(
-                            ) + self._SigSlStep.value())
+                        # Move window so that next ScorWin starts where we left off
+                        tgt = self._xlim_scor[1]
+                        res = tgt - (self._SigWin.value() - self._ScorWin.value())/2
+                        self._SlGoto.setValue(res) # scorwin starts at tgt
                         logger.info(
                             f"`{state}` vigilance state inserted ({value})"
                         )
@@ -1262,7 +1261,7 @@ class CanvasShortcuts(object):
                 cursor = self._time[0] + self._time[-1] * x_vb / vb_size[0]
             else:
                 val = self._SlVal.value()
-                step = self._SigSlStep.value()
+                step = self._SlStep
                 win = self._SigWin.value()
                 tm, th = (val * step, val * step + win)
                 cursor = tm + ((th - tm) * x_vb / vb_size[0])

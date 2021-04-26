@@ -269,7 +269,7 @@ class UiMenu(HelpMenu):
             config['Hyp_Color'] = self._PanHypnoColor.isChecked()
             # Navigation bar properties :
             config['Slider'] = self._SlVal.value()
-            config['Step'] = self._SigSlStep.value()
+            config['Step'] = self._SigStep.value()
             config['Display_Window'] = self._SigWin.value()
             config['Scoring_Window'] = self._ScorWin.value()
             config['Goto'] = self._SlGoto.value()
@@ -399,7 +399,7 @@ class UiMenu(HelpMenu):
                 _try("self._PanHypnoColor.setChecked(config['Hyp_Color'])")
                 # Navigation bar properties :
                 _try("self._SlVal.setValue(config['Slider'])")
-                _try("self._SigSlStep.setValue(config['Step'])")
+                _try("self._SigStep.setValue(config['Step'])")
                 _try("self._SigWin.setValue(config['Display_Window'])")
                 _try("self._ScorWin.setValue(config['Scoring_Window'])")
                 _try("self._SlGoto.setValue(config['Goto'])")

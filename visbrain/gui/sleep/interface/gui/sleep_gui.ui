@@ -4697,7 +4697,7 @@ display</string>
                <item row="2" column="1">
                 <widget class="QDoubleSpinBox" name="_SlGoto">
                  <property name="decimals">
-                  <number>1</number>
+                  <number>2</number>
                  </property>
                 </widget>
                </item>
@@ -4816,12 +4816,12 @@ display</string>
                <item row="2" column="12">
                 <widget class="QLabel" name="label_5">
                  <property name="text">
-                  <string>Slider step</string>
+                  <string>Step</string>
                  </property>
                 </widget>
                </item>
                <item row="2" column="13">
-                <widget class="QDoubleSpinBox" name="_SigSlStep">
+                <widget class="QDoubleSpinBox" name="_SigStep">
                  <property name="decimals">
                   <number>1</number>
                  </property>
