@@ -324,6 +324,7 @@ class UiSettings(object):
         self._SlVal.setMaximum(((self._time.max() - win) / step) + 1)
         self._SlVal.setTickInterval(step)
         self._SlVal.setSingleStep(step)
+        self._SlVal.setPageStep(self._SigStep.value())
         self._SlGoto.setMaximum((self._time.max() - win))
         # Re-set slider value :
         self._SlVal.setValue(sl * self._SlVal.maximum() / slmax)
@@ -449,7 +450,12 @@ class UiSettings(object):
 
     def on_mouse_wheel(self, event):
         """Executed function on mouse wheel."""
-        self._SlVal.setValue(self._SlVal.value() + event.delta[1])
+        # Scroll in units of self._SigStep
+        delta_n = int(event.delta[1] * 60) # = 1 for smallest possible scroll
+        delta_sec = self._SigStep.value() * delta_n
+        self._SlVal.setValue(
+            self._SlVal.value() + delta_sec / self._SlStep
+        )
 
     # =====================================================================
     # HYPNO
