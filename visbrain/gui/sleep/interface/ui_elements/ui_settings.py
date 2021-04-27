@@ -217,8 +217,13 @@ class UiSettings(object):
     def _fcn_slider_move(self):
         """Function applied when the slider move."""
         # ================= Scoring mode =================
-        # Exit mousescoring mode (revert to regular (centered) scoring window)
-        self._mousescoring_active = False
+        # If we stopped click-and-dragging, exit mousescoring mod
+        # (ie revert to regular (centered) scoring window)
+        # If we're still pressing the mouse, extend the click-and-drag
+        # window for super-duper-fast scoring
+        if not self._mouse_pressed:
+            self._mousescoring_active = False
+            # TODO: Fake mouse mouvement (Update cursor time and scoring window)
 
         # ================= INDEX =================
         # Get slider variables :
