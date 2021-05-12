@@ -235,13 +235,15 @@ class UiMenu(HelpMenu):
         if filename:
             config = {}
             # Get channels visibility / amplitude :
-            viz, amp = [], []
+            viz, amp_min, amp_max = [], [], []
             for i, k in enumerate(self._chanChecks):
                 viz.append(k.isChecked())
-                amp.append(self._ymaxSpin[i].value())
+                amp_max.append(self._ymaxSpin[i].value())
+                amp_min.append(self._yminSpin[i].value())
             config['Channel_Names'] = self._channels
             config['Channel_Visible'] = viz
-            config['Channel_Amplitude'] = amp
+            config['Channel_Amplitude_Max'] = amp_max
+            config['Channel_Amplitude_Min'] = amp_min
             # config['AllAmpMin'] = self._PanAllAmpMin.value()
             # config['AllAmpMax'] = self._PanAllAmpMax.value()
             config['SymAmp'] = self._PanAmpSym.isChecked()
@@ -369,7 +371,8 @@ class UiMenu(HelpMenu):
                 for i, k in enumerate(self._chanChecks):
                     self._chanChecks[i].setChecked(
                         config['Channel_Visible'][i])
-                    self._ymaxSpin[i].setValue(config['Channel_Amplitude'][i])
+                    self._ymaxSpin[i].setValue(config['Channel_Amplitude_Max'][i])
+                    self._yminSpin[i].setValue(config['Channel_Amplitude_Min'][i])
                 # Amplitudes :
                 # _try("self._PanAllAmpMin.setValue(config['AllAmpMin'])")
                 # _try("self._PanAllAmpMax.setValue(config['AllAmpMax'])")
