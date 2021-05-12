@@ -451,7 +451,7 @@ class UiSettings(object):
     def on_mouse_wheel(self, event):
         """Executed function on mouse wheel."""
         # Scroll in units of self._SigStep
-        delta_n = int(event.delta[1] * 60) # = 1 for smallest possible scroll
+        delta_n = int(event.delta[1] * 60 * 0.25)
         delta_sec = self._SigStep.value() * delta_n
         self._SlVal.setValue(
             self._SlVal.value() + delta_sec / self._SlStep
