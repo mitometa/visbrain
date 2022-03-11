@@ -466,14 +466,26 @@ class UiSettings(object):
         xlim_scor = self._xlim_scor
         # Find closest data time index from xlim
         t = self.data_index(xlim_scor)
-        # Set the stage :
+        # Set the stage on the hypnogram
         self._hypno[t[0]:t[1]] = state
         self._hyp.set_state(t[0], t[1], state)
+        # Set the stage on the hypno overlay on signal
+        self._fcn_hypoverlay_update()
         # # Update info table :
         self._fcn_info_update()
         # Update scoring table :
         self._fcn_hypno_to_score()
         # self._fcn_score_to_hypno()
+    
+    def _fcn_hypoverlay_update(self):
+        """Redraw the HypnoOverlay signal overlays."""
+        viz = self.menuDispHypOverlay.isChecked()
+        for i, _ in self._chan:
+            hyp_overlay = self._chan.hyp_overlay[i]
+            hyp_overlay.set_data(
+                self._hypno, self._hyp.hcolors
+            )
+            hyp_overlay.region.visible = viz
 
     # =====================================================================
     # Annotate

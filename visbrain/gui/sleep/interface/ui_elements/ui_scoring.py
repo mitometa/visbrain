@@ -67,6 +67,8 @@ class UiScoring(object):
             self._hypno = hypno
             # Update sleep info :
             self._fcn_info_update()
+            # Update hypno overlay
+            self._fcn_hypoverlay_update()
 
     def _get_score_marker(self, idx):
         """Get a specific row dat.

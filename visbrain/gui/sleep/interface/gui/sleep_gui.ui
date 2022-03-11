@@ -5020,6 +5020,7 @@ display</string>
     <addaction name="menuDispTimeax"/>
     <addaction name="menuDispNavbar"/>
     <addaction name="menuDispIndic"/>
+    <addaction name="menuDispHypOverlay"/>
     <addaction name="menuDispTopo"/>
     <addaction name="menuDispVideo"/>
     <addaction name="menuDispZoom"/>
@@ -5462,6 +5463,17 @@ display</string>
    </property>
    <property name="shortcut">
     <string>V</string>
+   </property>
+  </action>
+  <action name="menuDispHypOverlay">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Hypnogram overlay</string>
    </property>
   </action>
  </widget>

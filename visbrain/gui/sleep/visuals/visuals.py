@@ -245,8 +245,8 @@ class ChannelPlot(PrepareData):
 
         # Create one line per channel :
         pos = np.zeros((1, 3), dtype=np.float32)
-        self.mesh, self.report, self.grid, self.peak, self.scorwin_ind = \
-            [], [], [], [], []
+        self.mesh, self.report, self.grid, self.peak, self.scorwin_ind, self.hyp_overlay = \
+            [], [], [], [], [], []
         self.loc, self.node = [], []
         for i, k in enumerate(channels):
             # ----------------------------------------------
@@ -292,6 +292,16 @@ class ChannelPlot(PrepareData):
                                            name=k + '_scorwin_ind',
                                            visible=True)
             self.scorwin_ind.append(scorwin_ind)
+
+            # ----------------------------------------------
+            # Create a HypnoOverlay to display hypno colors onto signal :
+            hyp_overlay = HypnoOverlay(
+                parent=node,
+                name=k + '_hyp_overlay',
+                visible=True,
+                time=time,
+            )
+            self.hyp_overlay.append(hyp_overlay)
 
     def __iter__(self):
         """Iterate over visible mesh."""
@@ -917,6 +927,80 @@ class ScorWinIndicator(object):
         self.mesh_start = None
         self.mesh_end.parent = None
         self.mesh_end = None
+
+
+"""
+###############################################################################
+# Hypno overlay
+###############################################################################
+Display hypnogram colors onto signal data.
+"""
+
+
+class HypnoOverlay(object):
+    """Create a colored overlay on signal data."""
+
+    def __init__(self, time=None, name='hyp_overlayator', alpha=.3, visible=True, parent=None):
+
+        self.alpha = alpha
+
+        # Create a vispy image object :
+        assert time is not None
+        pos = np.zeros((len(time), 1), dtype=np.float32)
+        pos[:, 0] = time
+        color = np.zeros((len(time), 4))
+        self.region = scene.visuals.LinearRegion(
+            pos=time, color=color,
+            vertical=True,
+            name=name, parent=parent,
+        )
+        self.region.visible = visible
+        self.region.update()
+
+    def set_data(self, data, hcolors):
+        """Set data to the hypnogram indicator.
+
+        Parameters
+        ----------
+        data: array_like
+            Vigilance state values to sent. Must be a row vector.
+        time: array_like
+            The time vector
+        """
+        # Build color list: list((4)-tup)
+        data_colors = np.array([hcolors[v] for v in data]).squeeze()
+        data_colors[:, 3] = self.alpha
+
+        self.region.set_data(
+            color=data_colors
+        )
+        self.region.update()
+    
+    def set_state(self, stfrom, stend, value, hcolors):
+        """Add a vigilance state in a specific interval.
+
+        This method only set the vigilance state without updating the entire
+        hypnogram indicator.
+
+        Parameters
+        ----------
+        stfrom : int
+            The index where the state start.
+        stend : int
+            The index where the state end.
+        value : int
+            State value.
+        """
+        # Update color :
+        color = hcolors[value].squeeze()
+        color[3] = self.alpha  # Change transparency
+        self.region.color[stfrom + 1:stend + 1, :] = color
+        self.region.update()
+    
+    def clean(self):
+        """Clean indicators."""
+        self.region.parent = None
+        self.region = None
 
 
 """

@@ -392,6 +392,7 @@ class UiPanels(object):
             if viz:
                 self._chanCanvas[i].set_camera(self._chanCam[i])
         self._chan.update()
+        self._fcn_hypoverlay_update()
 
     def _fcn_select_all_chan(self):
         """Select all channels."""

@@ -77,6 +77,8 @@ class UiMenu(HelpMenu):
         self.menuDispNavbar.triggered.connect(self._disptog_navbar)
         # Time indicators :
         self.menuDispIndic.triggered.connect(self._disptog_indic)
+        # Hypnogram overlay
+        self.menuDispHypOverlay.triggered.connect(self._disptog_hyp_overlay)
         # Topoplot :
         self.menuDispTopo.triggered.connect(self._disptog_topo)
         # Video :
@@ -266,6 +268,7 @@ class UiMenu(HelpMenu):
             config['Topo_Visible'] = self.menuDispTopo.isChecked()
             config['Nav_Visible'] = self.menuDispNavbar.isChecked()
             config['Indic_Visible'] = self.menuDispIndic.isChecked()
+            config['Hyp_Overlay_Visible'] = self.menuDispHypOverlay.isChecked()
             config['Zoom_Visible'] = self.menuDispZoom.isChecked()
             config['Hyp_Lw'] = self._PanHypnoLw.value()
             config['Hyp_Color'] = self._PanHypnoColor.isChecked()
@@ -398,6 +401,7 @@ class UiMenu(HelpMenu):
                 _try("self.menuDispTopo.setChecked(config['Topo_Visible'])")
                 _try("self.menuDispNavbar.setChecked(config['Nav_Visible'])")
                 _try("self.menuDispIndic.setChecked(config['Indic_Visible'])")
+                _try("self.menuDispHypOverlay.setChecked(config['Hyp_Overlay_Visible'])")
                 _try("self._PanHypnoLw.setValue(config['Hyp_Lw'])")
                 _try("self._PanHypnoColor.setChecked(config['Hyp_Color'])")
                 # Navigation bar properties :
@@ -425,6 +429,7 @@ class UiMenu(HelpMenu):
                 self._disptog_topo()
                 self._disptog_video()
                 self._disptog_indic()
+                self._disptog_hyp_overlay()
                 self._disptog_zoom()
                 self._fcn_grid_toggle()
                 self._fcn_scorwin_indicator_toggle()
@@ -433,6 +438,7 @@ class UiMenu(HelpMenu):
                 self._fcn_chan_sym_amp()
                 self._fcn_set_hypno_lw()
                 self._fcn_set_hypno_color()
+                self._fcn_hypoverlay_update()
 
     def _load_detect_all(self, *args, filename=None):
         """Load all detections."""
@@ -590,6 +596,13 @@ class UiMenu(HelpMenu):
         self._hypInd.mesh.visible = viz
         self._TimeAxis.mesh.visible = viz
         self._fcn_slider_move()
+
+    def _disptog_hyp_overlay(self):
+        """Toggle method for display / hide the Hypnogram overlay."""
+        viz = self.menuDispHypOverlay.isChecked()
+        for i, _ in self._chan:
+            hyp_overlay = self._chan.hyp_overlay[i]
+            hyp_overlay.region.visible = viz
 
     def _disptog_zoom(self):
         """Toggle zoom mode."""

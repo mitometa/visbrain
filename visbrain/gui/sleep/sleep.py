@@ -272,6 +272,7 @@ class Sleep(_PyQtModule, ReadSleepData, UiInit, Visuals, UiElements,
         self._fcn_chan_sym_amp()
         self._fcn_info_update()
         self._fcn_hypno_to_score()
+        self._fcn_hypoverlay_update()
         # Set objects visible :
         self._SpecW.setVisible(True)
         self._HypW.setVisible(True)
