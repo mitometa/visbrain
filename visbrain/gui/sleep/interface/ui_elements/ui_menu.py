@@ -599,10 +599,7 @@ class UiMenu(HelpMenu):
 
     def _disptog_hyp_overlay(self):
         """Toggle method for display / hide the Hypnogram overlay."""
-        viz = self.menuDispHypOverlay.isChecked()
-        for i, _ in self._chan:
-            hyp_overlay = self._chan.hyp_overlay[i]
-            hyp_overlay.region.visible = viz
+        self._fcn_hypoverlay_update()
 
     def _disptog_zoom(self):
         """Toggle zoom mode."""

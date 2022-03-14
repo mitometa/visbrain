@@ -482,9 +482,10 @@ class UiSettings(object):
         viz = self.menuDispHypOverlay.isChecked()
         for i, _ in self._chan:
             hyp_overlay = self._chan.hyp_overlay[i]
-            hyp_overlay.set_data(
-                self._hypno, self._hyp.hcolors
-            )
+            if viz:
+                hyp_overlay.set_data(
+                    self._hypno, self._hyp.hcolors
+                )
             hyp_overlay.region.visible = viz
 
     # =====================================================================
