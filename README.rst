@@ -1,3 +1,27 @@
+This is a fork of Visbrain with important modifications to the Sleep GUI making
+it suitable (great?) for scoring animal data, while Sleep was originally designed
+for human scoring.
+
+In particular, the following features were added:
+
+* Dissociation of 'display window' and 'scoring window', allowing one to score in short epochs while still visualizing data around the scoring window, as in standard in animal scoring. In "locked" mode, the scoring and display window are identical (as is standard for human scoring)
+
+* Flexible definition of vigilance states (name, value in old-style hypnograms, color and order in the GUI) from a YAML file.  Use by specifying the `state_config_path` kwarg to the `Sleep` object.  Refer to the documentation for an exemple. The default configuration contains the following states: ['Art', 'Wake', 'REM', 'N1', 'N2', 'N3'] and their associated values: [-1, 0, 4, 1, 2, 3]
+
+* Integration of a video player synchronized with data. Use with by specifying the `video_file` and `video_offset` kwargs to the `Sleep` object. Supported formats are the same as Qt's QMediaPlayer class.
+
+* Adding a hypnogram color overlay onto signal data. This slows up state assignment quite a bit but can be deactivated in the menu.
+
+* Adding a "click-and-drag" window to select arbitrary epochs for subsequent scoring.  Life hack: if there is a rather long continuous epoch to score: click on signal to create the "click-and-drag" window, use "N" (while holding the mouse) to go to next window until you reach the end of the epoch, "close" the window where appropriate and score the whole thing at once. This will speed up dramatically scoring and hopefully make you happy.
+
+Hopefully all this stuff will be merged to the main repo eventually.
+Unfortunately this all comes with no guarantee regarding maintenance and system
+compatibility but feel free to contribute.
+
+Best,
+Tom
+
+
 ========
 Visbrain
 ========
