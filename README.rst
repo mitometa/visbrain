@@ -18,6 +18,9 @@ Hopefully all this stuff will be merged to the main repo eventually.
 Unfortunately this all comes with no guarantee regarding maintenance and system
 compatibility but feel free to contribute.
 
+
+Last but not least: here is the repo we use to load SpikeGLX (neuropixels) and TDT data, load a proxy to the EMG generated from LFP data, and launch the Sleep GUI: https://github.com/CSC-UW/sleepscore
+
 Best,
 Tom
 
