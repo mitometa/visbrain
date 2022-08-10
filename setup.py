@@ -54,6 +54,7 @@ setup(
         "pillow",
         "PyOpenGL",
         "pyyaml",
+        "pandas",
     ],
     extras_require={
         'full': ["mne", "tensorpac", "pandas", "xlrd", "scikit-image",
