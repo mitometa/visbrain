@@ -940,7 +940,7 @@ Display hypnogram colors onto signal data.
 class HypnoOverlay(object):
     """Create a colored overlay on signal data."""
 
-    def __init__(self, time=None, name='hyp_overlayator', alpha=.3, visible=True, parent=None):
+    def __init__(self, time=None, name='hyp_overlay', alpha=.3, visible=True, parent=None):
 
         self.alpha = alpha
 
