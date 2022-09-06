@@ -948,7 +948,7 @@ class HypnoOverlay(object):
         assert time is not None
         pos = np.zeros((len(time), 1), dtype=np.float32)
         pos[:, 0] = time
-        color = np.zeros((len(time), 4))
+        color = np.zeros((len(time), 4), dtype=np.float32)
         self.region = scene.visuals.LinearRegion(
             pos=time, color=color,
             vertical=True,
@@ -968,7 +968,7 @@ class HypnoOverlay(object):
             The time vector
         """
         # Build color list: list((4)-tup)
-        data_colors = np.array([hcolors[v] for v in data]).squeeze()
+        data_colors = np.array([hcolors[v] for v in data], dtype=np.float32).squeeze()
         data_colors[:, 3] = self.alpha
 
         self.region.set_data(
