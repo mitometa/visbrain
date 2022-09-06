@@ -976,27 +976,6 @@ class HypnoOverlay(object):
         )
         self.region.update()
     
-    def set_state(self, stfrom, stend, value, hcolors):
-        """Add a vigilance state in a specific interval.
-
-        This method only set the vigilance state without updating the entire
-        hypnogram indicator.
-
-        Parameters
-        ----------
-        stfrom : int
-            The index where the state start.
-        stend : int
-            The index where the state end.
-        value : int
-            State value.
-        """
-        # Update color :
-        color = hcolors[value].squeeze()
-        color[3] = self.alpha  # Change transparency
-        self.region.color[stfrom + 1:stend + 1, :] = color
-        self.region.update()
-    
     def clean(self):
         """Clean indicators."""
         self.region.parent = None
