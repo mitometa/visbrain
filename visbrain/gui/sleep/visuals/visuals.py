@@ -957,20 +957,14 @@ class HypnoOverlay(object):
         self.region.visible = visible
         self.region.update()
 
-    def set_data(self, data, hcolors):
+    def set_data(self, data_colors):
         """Set data to the hypnogram indicator.
 
         Parameters
         ----------
-        data: array_like
-            Vigilance state values to sent. Must be a row vector.
-        time: array_like
-            The time vector
+        data_colors (ndarray): (nsamples, 4) array of RGBA colors
         """
-        # Build color list: list((4)-tup)
-        data_colors = np.array([hcolors[v] for v in data], dtype=np.float32).squeeze()
-        data_colors[:, 3] = self.alpha
-
+        assert data_colors.shape[1] == 4
         self.region.set_data(
             color=data_colors
         )
