@@ -598,7 +598,10 @@ class UiMenu(HelpMenu):
         self._fcn_slider_move()
 
     def _disptog_hyp_overlay(self):
-        """Toggle method for display / hide the Hypnogram overlay."""
+        """Toggle method for display / hide the Hypnogram overlay.
+        
+        Shortcut : C
+        """
         self._fcn_hypoverlay_update()
 
     def _disptog_zoom(self):

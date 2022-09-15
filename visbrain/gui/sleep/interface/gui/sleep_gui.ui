@@ -5475,6 +5475,9 @@ display</string>
    <property name="text">
     <string>Hypnogram overlay</string>
    </property>
+   <property name="shortcut">
+    <string>C</string>
+   </property>
   </action>
  </widget>
  <customwidgets>

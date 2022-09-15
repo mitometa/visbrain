@@ -2512,6 +2512,7 @@ class Ui_MainWindow(object):
         self.menuDispIndic.setText(_translate("MainWindow", "Time indicators"))
         self.menuDispIndic.setShortcut(_translate("MainWindow", "I"))
         self.menuDispHypOverlay.setText(_translate("MainWindow", "Hypnogram overlay"))
+        self.menuDispHypOverlay.setShortcut(_translate("MainWindow", "C"))
         self.actionZoom_mode.setText(_translate("MainWindow", "Zoom mode"))
         self.actionZoom_mode.setShortcut(_translate("MainWindow", "Z"))
         self.menuDispZoom.setText(_translate("MainWindow", "Zoom mode"))
