@@ -480,10 +480,10 @@ class UiSettings(object):
     def _fcn_hypoverlay_update(self):
         """Redraw the HypnoOverlay signal overlays."""
         viz = self.menuDispHypOverlay.isChecked()
-        if viz:
-            data_colors = None
-            for i, _ in self._chan:
-                hyp_overlay = self._chan.hyp_overlay[i]
+        data_colors = None
+        for i, _ in self._chan:
+            hyp_overlay = self._chan.hyp_overlay[i]
+            if viz:
                 # Build color array only once ...
                 if i == 0:
                     hcolors = self._hyp.hcolors
@@ -491,7 +491,7 @@ class UiSettings(object):
                     data_colors[:, 3] = hyp_overlay.alpha
                 # Apply same color array to all
                 hyp_overlay.set_data(data_colors)
-                hyp_overlay.region.visible = viz
+            hyp_overlay.region.visible = viz
 
     # =====================================================================
     # Annotate
