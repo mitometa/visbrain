@@ -1442,6 +1442,13 @@ class CanvasShortcuts(object):
                 or abs(mouse_xlim[1] - mouse_xlim[0]) <= min_xdrag  # noqa
             ):
                 self._mousescoring_active = False
+            # with drag
+            if (
+                self._mousescoring_active == True
+            ):
+                is_sp_hyp = canvas.title in ['Hypnogram', 'Spectrogram']
+                title = canvas.title if is_sp_hyp else canvas.title.split('_')[1]
+                self._fcn_annotate_add('', (mouse_xlim[0], mouse_xlim[1]), title)
             self._update_scorwin_indicator()
             self._video.set_video_time(self._xlim_scor[0])
 
