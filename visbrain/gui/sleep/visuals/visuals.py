@@ -1338,7 +1338,7 @@ class CanvasShortcuts(object):
             # Set the current tab to the annotation tab :
             self.QuickSettings.setCurrentIndex(5)
             # Run annotation :
-            self._fcn_annotate_add('', (cursor, cursor), title)
+            self._fcn_annotate_add('', (int(np.round(cursor,0)), int(np.round(cursor,0))+3), title)
 
         @canvas.events.mouse_press.connect
         def on_mouse_press(event):
@@ -1448,7 +1448,7 @@ class CanvasShortcuts(object):
             ):
                 is_sp_hyp = canvas.title in ['Hypnogram', 'Spectrogram']
                 title = canvas.title if is_sp_hyp else canvas.title.split('_')[1]
-                self._fcn_annotate_add('', (mouse_xlim[0], mouse_xlim[1]), title)
+                self._fcn_annotate_add('', (int(np.round(mouse_xlim[0],0)), int(np.round(mouse_xlim[1],0))), title)
             self._update_scorwin_indicator()
             self._video.set_video_time(self._xlim_scor[0])
 
